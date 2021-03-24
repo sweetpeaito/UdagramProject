@@ -81,24 +81,26 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: ami-02701bcdc5509e57b
-      InstanceType: t2.micro
+      InstanceType: t3.medium
+      KeyName: demoserver
       UserData:
         Fn::Base64: !Sub |
-          #!/bin/bash
-          sudo apt-get update -y
-          sudo apt-get install apache2 -y
-          cd /var/www/html/index.html
-          aws s3 cp s3://myudagrambucket/udacity_udagram.zip .
-          unzip -o udacity_udagram.zip
-          sudo systemctl start apache2.service
-      IamInstanceProfile:   
+            #!/bin/bash -xe
+            exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+            apt update -y
+            apt install -y apache2
+            systemctl start apache2
+            systemctl enable apache2
+            rm ../../var/www/html/index.html
+            wget -P ../../var/www/html https://s3.us-west-2a.amazonaws.com/myudagrambucket/index.html
+        IamInstanceProfile:   
         Ref:  InstanceProfileUdagramApp
       SecurityGroups:
       - Ref: WebServerSecGroup
       BlockDeviceMappings:
       - DeviceName: "/dev/sdk"
         Ebs:
-          VolumeSize: '20'
+          VolumeSize: '10'
   WebAppGroup1:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -111,18 +113,7 @@ Resources:
       MaxSize: '4'
       TargetGroupARNs:
       - Ref: WebAppTargetGroup  
-  WebAppGroup2:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      VPCZoneIdentifier:
-      - Fn::ImportValue: 
-          !Sub "${EnvironmentName}-PRISN-2"
-      LaunchConfigurationName:
-        Ref: WebAppLaunchConfig
-      MinSize: '2'
-      MaxSize: '4'
-      TargetGroupARNs:
-      - Ref: WebAppTargetGroup            
+          
   WebAppLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
