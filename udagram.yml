@@ -42,7 +42,7 @@ Resources:
   LBSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow http to load balancer
+      GroupDescription: Allow http to our load balancer
       VpcId:
         Fn::ImportValue:
           !Sub "${EnvironmentName}-VPCID"
@@ -59,7 +59,7 @@ Resources:
   WebServerSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allows http to  hosts and SSH from local only
+      GroupDescription: Allow http to our hosts and SSH from local only
       VpcId:
         Fn::ImportValue:
           !Sub "${EnvironmentName}-VPCID"
@@ -81,19 +81,16 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: ami-02701bcdc5509e57b
-      InstanceType: t3.medium
-      KeyName: demoserver
+      InstanceType: t3.small
       UserData:
         Fn::Base64: !Sub |
-            #!/bin/bash -xe
-            exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-            apt update -y
-            apt install -y apache2
-            systemctl start apache2
-            systemctl enable apache2
-            rm ../../var/www/html/index.html
-            wget -P ../../var/www/html https://s3.us-west-2a.amazonaws.com/myudagrambucket/index.html
-        IamInstanceProfile:   
+          #!/bin/bash
+          sudo apt-get update -y
+          sudo apt-get install apache2 -y
+          cd /var/www/html
+          echo "Udagram, Udacity it works!" > index.html
+          sudo systemctl start apache2.service
+      IamInstanceProfile:   
         Ref:  InstanceProfileUdagramApp
       SecurityGroups:
       - Ref: WebServerSecGroup
@@ -112,8 +109,7 @@ Resources:
       MinSize: '2'
       MaxSize: '4'
       TargetGroupARNs:
-      - Ref: WebAppTargetGroup  
-          
+      - Ref: WebAppTargetGroup        
   WebAppLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:

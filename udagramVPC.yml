@@ -9,7 +9,7 @@ Parameters:
         Type: String
 
     VpcCIDR: 
-        Description: CIDR notation for this UdagramVPC
+        Description: CIDR notation for this Udagramvpc
         Type: String
         Default: 10.0.0.0/16
 
@@ -35,7 +35,7 @@ Parameters:
 
 Resources:
 
-    UdagramVPC: 
+    Udagramvpc: 
         Type: AWS::EC2::VPC
         Properties:
             CidrBlock: !Ref VpcCIDR
@@ -55,12 +55,12 @@ Resources:
         Type: AWS::EC2::VPCGatewayAttachment
         Properties:
             InternetGatewayId: !Ref InternetGateway
-            VpcId: !Ref UdagramVPC
+            VpcId: !Ref Udagramvpc
 
     PublicSubnet1: 
         Type: AWS::EC2::Subnet
         Properties:
-            VpcId: !Ref UdagramVPC
+            VpcId: !Ref Udagramvpc
             AvailabilityZone: !Select [ 0, !GetAZs '' ]
             CidrBlock: !Ref PublicSubnet1CIDR
             MapPublicIpOnLaunch: true
@@ -71,7 +71,7 @@ Resources:
     PublicSubnet2: 
         Type: AWS::EC2::Subnet
         Properties:
-            VpcId: !Ref UdagramVPC
+            VpcId: !Ref Udagramvpc
             AvailabilityZone: !Select [ 1, !GetAZs '' ]
             CidrBlock: !Ref PublicSubnet2CIDR
             MapPublicIpOnLaunch: true
@@ -82,7 +82,7 @@ Resources:
     PrivateSubnet1: 
         Type: AWS::EC2::Subnet
         Properties:
-            VpcId: !Ref UdagramVPC
+            VpcId: !Ref Udagramvpc
             AvailabilityZone: !Select [ 0, !GetAZs '' ]
             CidrBlock: !Ref PrivateSubnet1CIDR
             MapPublicIpOnLaunch: false
@@ -93,7 +93,7 @@ Resources:
     PrivateSubnet2: 
         Type: AWS::EC2::Subnet
         Properties:
-            VpcId: !Ref UdagramVPC
+            VpcId: !Ref Udagramvpc
             AvailabilityZone: !Select [ 1, !GetAZs '' ]
             CidrBlock: !Ref PrivateSubnet2CIDR
             MapPublicIpOnLaunch: false
@@ -128,7 +128,7 @@ Resources:
     PublicRouteTable:
         Type: AWS::EC2::RouteTable
         Properties: 
-            VpcId: !Ref UdagramVPC
+            VpcId: !Ref Udagramvpc
             Tags: 
                 - Key: Name 
                   Value: !Sub ${EnvironmentName} Public Routes
@@ -157,7 +157,7 @@ Resources:
     PrivateRouteTable1:
         Type: AWS::EC2::RouteTable
         Properties: 
-            VpcId: !Ref UdagramVPC
+            VpcId: !Ref Udagramvpc
             Tags: 
                 - Key: Name 
                   Value: !Sub ${EnvironmentName} Private For Routes (AZ1)
@@ -178,7 +178,7 @@ Resources:
     PrivateRouteTable2:
         Type: AWS::EC2::RouteTable
         Properties: 
-            VpcId: !Ref UdagramVPC
+            VpcId: !Ref Udagramvpc
             Tags: 
                 - Key: Name 
                   Value: !Sub ${EnvironmentName} Private For Routes (AZ2)
@@ -198,9 +198,9 @@ Resources:
 
 Outputs: 
 
-    UdagramVPC: 
-        Description: Output the created UdagramVPC
-        Value: !Ref UdagramVPC
+    Udagramvpc: 
+        Description: Output the created Udagramvpc
+        Value: !Ref Udagramvpc
         Export:
           Name: !Sub ${EnvironmentName}-VPCID
 
